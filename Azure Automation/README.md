@@ -5,35 +5,7 @@ PowerShell Runbook scripts for Azure Automation using System Assigned Managed Id
 ## Setup
 
 Before running any runbook, assign the required Microsoft Graph API permissions
-to the Managed Identity using the setup script below.
-
-### Grant-ManagedIdentityGraphPermissions.ps1
-
-A one-time setup script that assigns Microsoft Graph API app roles to the
-System Assigned Managed Identity of the Azure Automation Account.
-
-**How to run:**
-1. Open [Azure Cloud Shell](https://shell.azure.com) (PowerShell)
-2. Copy and run [`Grant-ManagedIdentityGraphPermissions.ps1`](./Grant-ManagedIdentityGraphPermissions.ps1)
-3. The script will assign the roles and verify the result
-
-**Requirements:**
-- Global Admin or Privileged Role Administrator role
-- Object ID of the Managed Identity
-  (Azure Portal → Automation Account → Identity → System assigned → Object ID)
-
-**Customization:**
-To add or remove permissions, edit the `$roles` array at the top of the script:
-```powershell
-$roles = @(
-    "DeviceManagementManagedDevices.ReadWrite.All",
-    "User.Read.All",
-    "Mail.Send",
-    "Application.Read.All"
-)
-```
-
----
+to the Managed Identity using the setup script Grant-ManagedIdentityGraphPermissions.
 
 ## Runbooks
 
