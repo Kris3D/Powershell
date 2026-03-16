@@ -23,7 +23,7 @@ No App Registration, Key Vault, or client secret required.
 ## Required Graph API Permissions
 
 Assign the following App Roles to the Managed Identity.
-Use [`Grant-ManagedIdentityGraphPermissions.ps1`](../Grant-ManagedIdentityGraphPermissions.ps1)
+Use [`Grant-ManagedIdentityGraphPermissions.ps1`](../Grant-ManagedIdentityGraphPermissions/Grant-ManagedIdentityGraphPermissions.ps1).
 to assign these roles via Azure Cloud Shell.
 
 | Permission | Type | Purpose |
