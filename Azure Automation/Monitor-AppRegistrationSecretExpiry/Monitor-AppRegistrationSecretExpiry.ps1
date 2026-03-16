@@ -23,6 +23,7 @@
     Author      : Kris De Pril
     Version     : 1.4
     Date        : 16/03/2026
+    Authentication  : System Assigned Managed Identity
     Runtime     : PowerShell 7.2 or higher (uses ?? null-coalescing operator)
 
 .EXAMPLE
