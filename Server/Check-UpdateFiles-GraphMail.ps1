@@ -7,14 +7,21 @@ This script checks a local path for update files.
 If no files are found, the script exits without further action.
 If one or more files are detected, a high-priority email is sent including a file overview.
 
-Authentication is performed using an Azure App Registration where:
-- the ClientId is used as the Credential Manager target
-- the TenantId is stored as the username
-- the Client Secret is stored as the password
+Authentication is performed using an Azure App Registration where credentials are stored in Windows Credential Manager:
+- Target   = ClientId
+- Username = TenantId
+- Password = Client Secret
+
+Credentials must be created beforehand using the companion script:
+- Set-WindowsCredential.ps1
+
+Important:
+- Credential Manager is context-based (user / SYSTEM)
+- Scheduled Tasks running under SYSTEM require the credential to be created under SYSTEM
 
 .PARAMETER clientId
 Azure App Registration Client ID.
-Used as the Credential Manager target.
+Used as Credential Manager target.
 
 .PARAMETER updatePath
 Local path where update files are expected.
@@ -36,9 +43,10 @@ Behavior:
 - Error → exit 1
 
 .EXAMPLE
-.\Check-UpdateFiles.ps1 -clientId "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+.\Check-UpdateFiles.ps1 `
+    -clientId "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" `
+    -updatePath "C:\Cevi\Vergunningen\AutoUpdater"
 #>
-
 param (
     [Parameter(Mandatory)]
     [string]$clientId,
