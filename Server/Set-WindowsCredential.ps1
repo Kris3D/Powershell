@@ -1,83 +1,94 @@
 <#
 .SYNOPSIS
-    Script stores a client secret in the Windows Credential Manager.
+Stores an Azure App Registration client secret in Windows Credential Manager.
 
 .DESCRIPTION
-    This script writes a client secret to the local Windows Credential Manager
-    as a Generic Credential and validates that it has been stored correctly.
+This script writes a client secret to the local Windows Credential Manager
+as a Generic Credential and validates the stored values.
 
-.PARAMETER Target
-    Unique name of the credential (recommended format: Azure-<ClientId>-Secret)
+The credential is structured as follows:
+- Target   = ClientId (Azure App Registration)
+- Username = TenantId
+- Password = Client secret
 
-.PARAMETER Username
-    Descriptive name for the credential (e.g. App Registration name)
+.PARAMETER clientId
+Azure App Registration Client ID.
+Used as Credential Manager target.
 
-.PARAMETER Password
-    Client secret to store
+.PARAMETER tenantId
+Azure AD Tenant ID.
+Stored as the credential username.
+
+.PARAMETER clientSecret
+Azure App Registration client secret.
+Stored as the credential password.
 
 .NOTES
-    Requirements:
-    - PowerShell module: CredentialManager
-      Install with:
-      Install-Module -Name CredentialManager -Scope AllUsers -Force
+Requirements:
+- PowerShell module: CredentialManager
 
-    Important:
-    - Credential Manager is context-based (user / SYSTEM)
-    - Scheduled Tasks running under SYSTEM require the credential to be stored under SYSTEM as well
+Important:
+- Credential Manager is context-based (user / SYSTEM)
+- Scheduled Tasks running under SYSTEM require the credential to be created under SYSTEM
+
+Behavior:
+- Existing credential is overwritten
+- Validation is performed after write
 #>
 
 param (
-    [Parameter(Mandatory = $true)]
-    [string]$Target,
+    [Parameter(Mandatory)]
+    [string]$clientId,
 
-    [Parameter(Mandatory = $true)]
-    [string]$Username,
+    [Parameter(Mandatory)]
+    [string]$tenantId,
 
-    [Parameter(Mandatory = $true)]
-    [string]$Password
+    [Parameter(Mandatory)]
+    [string]$clientSecret
 )
 
-Import-Module CredentialManager
+Import-Module CredentialManager -ErrorAction Stop
 
 # =========================
 # WRITE CREDENTIAL
 # =========================
-Write-Output "Credential wegschrijven: $Target"
 
-$existing = Get-StoredCredential -Target $Target
+Write-Output "Writing credential for clientId: $clientId"
+
+$existing = Get-StoredCredential -Target $clientId
 
 if ($existing) {
-    Write-Output "WARNING: Credential bestond al en wordt overschreven"
+    Write-Output "Credential already exists -> overwrite"
 }
 
 New-StoredCredential `
-    -Target $Target `
-    -Username $Username `
-    -Password $Password `
+    -Target $clientId `
+    -Username $tenantId `
+    -Password $clientSecret `
     -Persist LocalMachine
 
 # =========================
 # VALIDATION
 # =========================
-Write-Output "Validatie gestart"
 
-$cred = Get-StoredCredential -Target $Target
+Write-Output "Validate stored credential"
+
+$cred = Get-StoredCredential -Target $clientId
 
 if (-not $cred) {
-    throw "FAIL: Credential niet gevonden: $Target"
+    Write-Output "Credential not found after write"
+    exit 1
 }
 
-if ($cred.UserName -ne $Username) {
-    throw "FAIL: Username mismatch (verwacht: $Username - gevonden: $($cred.UserName))"
+if ($cred.UserName -ne $tenantId) {
+    Write-Output "TenantId mismatch (expected: $tenantId / found: $($cred.UserName))"
+    exit 1
 }
 
 if (-not $cred.Password) {
-    throw "FAIL: Password is leeg of fout opgeslagen"
+    Write-Output "Stored password is empty"
+    exit 1
 }
 
-# optionele sanity check
-if ($cred.Password.Length -lt 10) {
-    throw "FAIL: Password lijkt ongeldig (te kort)"
-}
-
-Write-Output "OK: Credential succesvol opgeslagen en gevalideerd"
+Write-Output "Credential stored and validated successfully"
+exit 0
