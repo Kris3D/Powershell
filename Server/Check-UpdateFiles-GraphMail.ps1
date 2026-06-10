@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Checks an update folder and sends a Microsoft Graph alert when files are detected.
+Checks an update folder on-prem and sends a Microsoft Graph alert when files are detected.
 
 .DESCRIPTION
 This script checks a local path for update files.
